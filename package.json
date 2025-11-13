@@ -1,4 +1,5 @@
 {
+  "type": "module",
   "name": "gitea-playwright-automation",
   "version": "1.0.0",
   "description": "",
@@ -7,9 +8,7 @@
     "doc": "docs",
     "test": "tests"
   },
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
+  "scripts": {},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/RuslanMck/gitea-playwright-automation.git"
@@ -17,12 +16,12 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
   "bugs": {
     "url": "https://github.com/RuslanMck/gitea-playwright-automation/issues"
   },
   "homepage": "https://github.com/RuslanMck/gitea-playwright-automation#readme",
   "devDependencies": {
+    "@playwright/test": "^1.56.1",
     "@types/node": "^24.10.1",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3"

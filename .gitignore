@@ -69,3 +69,7 @@ coverage/
 # Debug
 *.cpuprofile
 *.heapsnapshot
+
+# Playwright
+/playwright/.cache/
+/playwright/.auth/
