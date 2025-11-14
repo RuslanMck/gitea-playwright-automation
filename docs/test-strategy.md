@@ -53,26 +53,26 @@ Admin user management APIs are treated as P0 for this project because they are u
 
 
 - **Users / Auth (P0)**  
-  - Get existing user info — `GET /users/{username}`
-  - Add and delete email address — `POST /user/email`, `DELETE /user/email`
-  - Create a user repository — `POST /user/repos`
-  - List repositories owned by a user — `GET /users/{username}/repos`
-  - Create an access user token — `POST /users/{username}/tokens`
-  - Delete an access user token — `DELETE /users/{username}/tokens`
+  - Get existing user info - `GET /users/{username}`
+  - Add and delete email address - `POST /user/emails`, `DELETE /user/emails`
+  - Create a user repository - `POST /user/repos`
+  - List repositories owned by a user - `GET /users/{username}/repos`
+  - Create an access user token - `POST /users/{username}/tokens`
+  - Delete an access user token - `DELETE /users/{username}/tokens`
   - Create a user as admin `POST /admin/users`
   - Get a users list `GET /admin/users`
   - Delete a user as admin `DELETE /admin/users`
 
 - **Repositories (P0)**  
-  - Get repository info — `GET /repos/{owner}/{repo}`
-  - Delete repository — `DELETE /repos/{owner}/{repo}`
-  - Create branch — `POST /repos/{owner}/{repo}/branches`
-  - Delete branch — `DELETE /repos/{owner}/{repo}/branches/{branch}`
+  - Get repository info - `GET /repos/{owner}/{repo}`
+  - Delete repository - `DELETE /repos/{owner}/{repo}`
+  - Create branch - `POST /repos/{owner}/{repo}/branches`
+  - Delete branch - `DELETE /repos/{owner}/{repo}/branches/{branch}`
 
 - **Issues (P1)**  
-  - Create an issue — `POST /repos/{owner}/{repo}/issues`
-  - List repository issues — `GET /repos/{owner}/{repo}/issues`
-  - Delete an issue — `DELETE /repos/{owner}/{repo}/issues/{index}`
+  - Create an issue - `POST /repos/{owner}/{repo}/issues`
+  - List repository issues - `GET /repos/{owner}/{repo}/issues`
+  - Delete an issue - `DELETE /repos/{owner}/{repo}/issues/{index}`
 
 - **Other areas (P2 / out-of-scope for now)**  
   - Create a pull request `POST /repos/{owner}/{repo}/pulls`
