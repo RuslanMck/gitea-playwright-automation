@@ -73,3 +73,7 @@ coverage/
 # Playwright
 /playwright/.cache/
 /playwright/.auth/
+
+# Costom
+*_my.*
+
