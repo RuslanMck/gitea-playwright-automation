@@ -8,7 +8,8 @@ Each naming rule includes the name of the standard (ISO / ECMA / Conventional Co
 **Standard: Git SCM Best Practices, GitHub Flow, Semantic Branching Guidelines**
 
 **1.1 Pattern**
-<category>/<scope>-<short-description>
+
+`<category>/<scope>-<short-description>`
 
 **1.2 Recommended Categories**
 
@@ -35,7 +36,8 @@ docs/test-strategy
 **Standard: lowercase-with-hyphens (GNU FHS + POSIX)**
 
 **2.1 Pattern**
-lowercase-with-dashes
+
+`lowercase-with-dashes`
 
 **2.2 Examples**
 ```
@@ -54,7 +56,8 @@ src/pages
 **Standard: kebab-case (Node.js, ESLint, Airbnb JS Style Guide)**
 
 **3.1 Pattern**
-kebab-case.ts
+
+`kebab-case.ts`
 
 **3.2 Examples**
 ```
@@ -66,7 +69,8 @@ dashboard-page.ts
 ```
 
 **3.3 Test File Pattern**
-<feature>.<layer>.spec.ts
+
+`<feature>.<layer>.spec.ts`
 
 **3.4 Examples:**
 ```
@@ -82,7 +86,8 @@ dashboard-ui.spec.ts
 **Standard: PascalCase (ECMA-262 JavaScript Language Specification)**
 
 **4.1 Pattern**
-PascalCase
+
+`PascalCase`
 
 **4.2 Examples**
 ```
@@ -100,7 +105,8 @@ class RepositorySchema {}
 **Standard: camelCase (ECMAScript + ISO/IEC 14882 style principles)**
 
 **5.1 Pattern**
-camelCase()
+
+`camelCase()`
 
 **5.2 Examples**
 ```
@@ -125,6 +131,7 @@ let userId = ...
 ```
 
 **6.2 Boolean Names Should Start With**
+
 `is / has / can / should`
 
 
@@ -164,6 +171,7 @@ const test = base.extend<MyFixtures>({
 **Standard: BDD-style (Gherkin + Jest conventions)**
 
 **8.1 Pattern**
+
 `should <expected behavior> when <context>`
 
 **8.2 Examples**
@@ -252,6 +260,7 @@ import { CreateUserSchema } from '../schemas/user-schema';
 **Standard: Conventional Commits v1.0.0**
 
 **14.1 Pattern**
+
 `<type>(scope): message`
 
 **14.2 Allowed Types**
