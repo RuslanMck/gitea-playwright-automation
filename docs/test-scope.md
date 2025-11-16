@@ -24,11 +24,11 @@ APIs are prioritized using the P0/P1/P2 model:
   - `DELETE /user/emails`
   - `POST /users/{username}/tokens`
   - `DELETE /users/{username}/tokens`
-- Repositories:
+  - `GET /users/{username}/repos`
   - `POST /user/repos`
+- Repositories:
   - `GET /repos/{owner}/{repo}`
   - `DELETE /repos/{owner}/{repo}`
-  - `GET /users/{username}/repos`
 - Admin APIs used for test setup:
   - `POST /admin/users`
   - `GET /admin/users`

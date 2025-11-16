@@ -14,12 +14,13 @@ export class BaseApiClient {
     private buildHeaders(extraHeaders?: Record<string, string>) {
         return {
             'Content-Type': 'application/json',
-            ...(this.authToken ? { Authorization: `Bearer ${this.authToken}` } : {}),
+            ...(this.authToken ? { Authorization: `token ${this.authToken}` } : {}),
             ...extraHeaders,
         };
     }
 
     private buildURL(path: string, queryParams?: Record<string, string | number>) {
+        
         const url = new URL(path, this.baseUrl);
 
         if (queryParams) {
