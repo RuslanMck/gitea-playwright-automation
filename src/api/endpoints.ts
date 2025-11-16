@@ -18,6 +18,7 @@ export const USER_SELF_ENDPOINTS = {
 
 export const ADMIN_ENDPOINTS = {
     user: 'admin/users',
+    deleteUser: (username: string) => `admin/users/${username}`,
 }
 
 export const REPO_ENDPOINTS = {
