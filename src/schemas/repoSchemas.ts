@@ -1,12 +1,5 @@
 import { z } from "zod";
-
-export const RepoOwnerSchema = z.object({
-    id: z.number().positive(),
-    login: z.string().min(1),
-    email: z.email(),
-    visibility: z.string(),
-    username: z.string(),
-}).loose();
+import { UserResponseSchema } from "./userSchemas.js";
 
 export const RepoPermissionsSchema = z.object({
     admin: z.boolean(),
@@ -16,13 +9,16 @@ export const RepoPermissionsSchema = z.object({
 
 export const SingleRepoResponseSchema = z.object({
     id: z.number().positive(),
-    owner: RepoOwnerSchema,
+    owner: UserResponseSchema,
     name: z.string(),
     permissions: RepoPermissionsSchema,
+    full_name: z.string(),
 }).loose();
 
 export const MultipleReposResponseSchema = z.array(SingleRepoResponseSchema);
 
-export type CreateRepoResponse = z.infer<typeof SingleRepoResponseSchema>;
-export type GetAllUserReposResponse = z.infer<typeof MultipleReposResponseSchema>;
+export type SingleRepoResponse = z.infer<typeof SingleRepoResponseSchema>;
+export type MultipleReposResponse = z.infer<typeof MultipleReposResponseSchema>;
+
+
 

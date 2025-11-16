@@ -17,5 +17,10 @@ export const USER_SELF_ENDPOINTS = {
 }
 
 export const ADMIN_ENDPOINTS = {
-    create: 'admin/users',
+    user: 'admin/users',
+}
+
+export const REPO_ENDPOINTS = {
+    getRepo: (username: string, repoName: string) => `repos/${username}/${repoName}`,
+    deleteRepo: (username: string, repoName: string) => `repos/${username}/${repoName}`,
 }
