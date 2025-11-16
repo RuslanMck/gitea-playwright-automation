@@ -1,7 +1,9 @@
-import { MultipleReposResponseSchema, SingleRepoResponseSchema, type CreateRepoResponse, type GetAllUserReposResponse } from "../../schemas/repoSchemas.js";
-import { AccessTokenSchema, EmailsResponseSchema, UserResponseSchema, type AccessToken, type EmailResponse, type User } from "../../schemas/userSchemas.js";
+import { MultipleReposResponseSchema, SingleRepoResponseSchema, type SingleRepoResponse, type MultipleReposResponse } from "../../schemas/repoSchemas.js";
+import { UserResponseSchema,type User } from "../../schemas/userSchemas.js";
+import { EmailsResponseSchema, type EmailResponse } from "../../schemas/emailSchemas.js";
 import { USER_ENDPOINTS, USER_SELF_ENDPOINTS } from "../endpoints.js";
 import type { BaseApiClient } from "./baseApiClient.js";
+import { AccessTokenSchema, type AccessToken } from "../../schemas/tokenSchemas.js";
 
 
 export class UserService {
@@ -28,7 +30,7 @@ export class UserService {
         return response;
     }
 
-    async createUserRepo(repoName: string): Promise<CreateRepoResponse | null> {
+    async createUserRepo(repoName: string): Promise<SingleRepoResponse | null> {
         const createRepoBody = { name: repoName };
         const response = await this.api.post(USER_SELF_ENDPOINTS.repos, createRepoBody);
 
@@ -51,7 +53,7 @@ export class UserService {
 
     }
 
-    async getAllUserRepos(username: string): Promise<GetAllUserReposResponse | null> {
+    async getAllUserRepos(username: string): Promise<MultipleReposResponse | null> {
         const response = await this.api.get(USER_ENDPOINTS.allUserRepos(username));
 
         if (!response.ok()) {

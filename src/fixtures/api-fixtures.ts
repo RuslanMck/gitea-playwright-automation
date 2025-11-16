@@ -1,11 +1,15 @@
 import {test as base, request} from '@playwright/test'
 import { BaseApiClient } from "../api/services/baseApiClient.js"
 import { UserService } from '../api/services/userService.js';
+import { RepoService } from '../api/services/repoService.js';
+import { AdminService } from '../api/services/adminService.js';
 
 
 type ApiFixtures = {
     baseApiClient: BaseApiClient;
     userService: UserService;
+    repoService: RepoService;
+    adminService: AdminService;
 };
 
 export const test = base.extend<ApiFixtures>({
@@ -26,6 +30,14 @@ baseApiClient: async ({ request }, use) => {
 userService: async ({baseApiClient}, use) => {
     await use (new UserService(baseApiClient));
 },
+
+repoService: async ({baseApiClient}, use) => {
+    await use (new RepoService(baseApiClient));
+},
+
+adminService: async ({baseApiClient}, use) => {
+    await use (new AdminService(baseApiClient));
+}
 
 });
 
