@@ -55,9 +55,10 @@ export class BaseApiClient {
         });
     }
 
-    async delete(path: string, headers?: Record<string, string>) {
+    async delete(path: string, body?: unknown, headers?: Record<string, string>) {
         const url = this.buildURL(path);
         return this.request.delete(url, {
+            data: body,
             headers: this.buildHeaders(headers),
         });
     }

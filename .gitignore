@@ -28,6 +28,7 @@ tests/.env
 
 # Secrets
 tests/secrets/
+secrets/
 
 # IDE
 .vscode/

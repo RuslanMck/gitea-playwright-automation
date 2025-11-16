@@ -4,8 +4,18 @@
 
 export const USER_ENDPOINTS = {
     byUserName: (username: string) => `users/${username}`,
-    search: 'users/search',
-    create: 'admin/users',
-    repos: 'user/repos',
     allUserRepos: (username: string) => `users/${username}/repos`,
+    postUserAccessToken: (username: string) => `users/${username}/tokens`,
+    deleteUserAccessToken: (username: string, tokenName: string) => `users/${username}/tokens/${tokenName}`,
+    search: 'users/search',
+}
+
+export const USER_SELF_ENDPOINTS = {
+    repos: 'user/repos',
+    user: 'user',
+    emails: 'user/emails',
+}
+
+export const ADMIN_ENDPOINTS = {
+    create: 'admin/users',
 }
