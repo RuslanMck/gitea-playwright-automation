@@ -8,6 +8,6 @@ export const AccessTokenSchema = z.object({
     scopes: z.array(z.string()),
     created_at: z.string(),
     last_used_at: z.string()
-});
+}).loose();
 
 export type AccessToken = z.infer<typeof AccessTokenSchema>;

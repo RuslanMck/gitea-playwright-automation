@@ -1,4 +1,6 @@
 import { expect, test } from "../../../src/fixtures/api-fixtures.js";
+import { UserResponseSchema } from "../../../src/schemas/userSchemas.js";
+import { parseResponseUsingZod } from "../../../src/utils/api-helpers.js";
 
 test.describe('Admin API tests', () => {
 
@@ -8,10 +10,11 @@ test.describe('Admin API tests', () => {
 
     test('Create user', async ({ adminService }) => {
         const response = await adminService.createUser(email, username, password);
+        const user = await parseResponseUsingZod(response, UserResponseSchema);
 
-        console.log(response);
-        expect(response.login).toBe(username);
-        expect(response.email).toBe(email);
+        console.log(user);
+        expect(user.login).toBe(username);
+        expect(user.email).toBe(email);
     });
 
     test('Delete User', async ({ adminService }) => {

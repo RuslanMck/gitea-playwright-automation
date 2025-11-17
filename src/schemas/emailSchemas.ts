@@ -5,8 +5,8 @@ export const EmailSchema = z.object({
     verified: z.boolean(),
     primary: z.boolean(),
     user_id: z.number(),
-    username: z.any(),
-});
+    username: z.string().optional(),
+}).loose();
 
 export const EmailsResponseSchema = z.array(EmailSchema);
 
