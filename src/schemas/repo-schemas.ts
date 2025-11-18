@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { UserResponseSchema } from "./userSchemas.js";
+import { UserResponseSchema } from "./user-schemas.js";
 
 export const RepoPermissionsSchema = z.object({
     admin: z.boolean(),

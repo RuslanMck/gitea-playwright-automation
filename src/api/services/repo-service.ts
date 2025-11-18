@@ -1,5 +1,5 @@
 import { REPO_ENDPOINTS } from "../endpoints.js";
-import type { BaseApiClient } from "./baseApiClient.js";
+import type { BaseApiClient } from "./base-api-client.js";
 
 export class RepoService {
     constructor(private readonly api: BaseApiClient) { }

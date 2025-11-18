@@ -1,5 +1,5 @@
 import { USER_ENDPOINTS, USER_SELF_ENDPOINTS } from "../endpoints.js";
-import type { BaseApiClient } from "./baseApiClient.js";
+import type { BaseApiClient } from "./base-api-client.js";
 
 export class UserService {
     constructor(private readonly api: BaseApiClient) { }
