@@ -13,6 +13,11 @@ type ApiFixtures = {
     adminService: AdminService;
     setupTestUser: TestUser;
     cleanupTestUser: (username: string) => void;
+    setupTestRepos: {
+        createRepos: (repoCount: number) => void;
+        getCreatedRepos: () => string[];
+    };
+    cleanupTestRepos: (reposList: string[], username: string) => void;
 };
 
 export const test = base.extend<ApiFixtures>({
@@ -52,7 +57,7 @@ export const test = base.extend<ApiFixtures>({
 
         const response = await adminService.createUser(email, username, password);
 
-        if (response.status() !== 201) {
+        if (!response.ok()) {
             throw new Error(`Failed to create test user: ${response.status()}`);
         }
 
@@ -75,6 +80,47 @@ export const test = base.extend<ApiFixtures>({
             }
         }
     },
+
+    setupTestRepos: async ({ userService }, use) => {
+        const repoNamesList: string[] = [];
+
+        const createRepos = async (repoCount: number) => {
+
+            for (let i = 0; i < repoCount; i++) {
+                const repoName = `${process.env.REPO_NAME}_${getTestsPostfix()}`;
+                repoNamesList.push(repoName);
+                console.log(`------> repo ${repoName} is ADDED`);
+                const response = await userService.createUserRepo(repoName);
+
+                if (!response.ok()) {
+                    throw new Error(`Failed to create test repo: ${response.status()}`);
+                }
+            }
+        };
+
+        const getCreatedRepos = () => repoNamesList;
+
+        await use({ createRepos, getCreatedRepos });
+    },
+
+    cleanupTestRepos: async ({ repoService }, use) => {
+
+        const cleanupRepos = async (repoNamesList: string[], username: string) => {
+
+            for (const repo of repoNamesList) {
+
+                const response = await repoService.deleteRepo(username, repo)
+                console.log(`------> repo ${repo} is DELETED`)
+
+                if (!response.ok()) {
+                    throw new Error(`Failed to delete test repos: ${response.status()}`);
+                }
+            }
+        }
+
+        await use(cleanupRepos);
+    },
+    
 });
 
 type TestUser = {
