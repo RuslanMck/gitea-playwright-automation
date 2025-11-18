@@ -33,3 +33,8 @@ export const GetUsersResponseSchema = z.object({
 });
 
 export type GetUsersResponse = z.infer<typeof GetUsersResponseSchema>;
+
+export const UserErrorResponse = z.object({
+    message: z.string(),
+    url: z.string().url(),
+})
