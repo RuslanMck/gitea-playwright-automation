@@ -1,7 +1,7 @@
 import { test, expect } from '../../../src/fixtures/api-fixtures.js';
-import { EmailsResponseSchema } from '../../../src/schemas/emailSchemas.js';
-import { AccessTokenSchema } from '../../../src/schemas/tokenSchemas.js';
-import { UserResponseSchema } from '../../../src/schemas/userSchemas.js';
+import { EmailsResponseSchema } from '../../../src/schemas/email-schemas.js';
+import { AccessTokenSchema } from '../../../src/schemas/token-schemas.js';
+import { UserResponseSchema } from '../../../src/schemas/user-schemas.js';
 import { parseResponseUsingZod } from '../../../src/utils/api-helpers.js';
 
 test.describe('Test GET user request', () => {

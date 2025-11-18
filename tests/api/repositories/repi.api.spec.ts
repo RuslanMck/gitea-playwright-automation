@@ -1,5 +1,5 @@
 import { test, expect } from '../../../src/fixtures/api-fixtures.js';
-import { SingleRepoResponseSchema } from '../../../src/schemas/repoSchemas.js';
+import { SingleRepoResponseSchema } from '../../../src/schemas/repo-schemas.js';
 import { parseResponseUsingZod } from '../../../src/utils/api-helpers.js';
 
 test.describe('Repo api tests', () => {

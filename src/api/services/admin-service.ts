@@ -1,5 +1,5 @@
 import { ADMIN_ENDPOINTS } from "../endpoints.js";
-import type { BaseApiClient } from "./baseApiClient.js";
+import type { BaseApiClient } from "./base-api-client.js";
 
 export class AdminService {
     constructor(private readonly api: BaseApiClient) { }
