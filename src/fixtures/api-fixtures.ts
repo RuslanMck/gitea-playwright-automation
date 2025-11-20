@@ -233,19 +233,6 @@ export const test = base.extend<ApiFixtures>({
         }
 
         await use(createToken);
-
-        // Cleanup - delete created tokens
-        for (const { username, password, tokenName } of tokensCreated) {
-            try {
-                const response = await userService.deleteUserAccessToken(username, password, tokenName);
-                console.log(`[DEBUG LOG] Token ${tokenName} DELETED`);
-                if (!response.ok()) {
-                    console.warn(`Failed to cleanup token ${tokenName}: ${response.status()}`);
-                }
-            } catch (error) {
-                console.warn(`Error cleaning up token ${tokenName}:`, error);
-            }
-        }
     },
 
     cleanupTestToken: async ({ userService }, use) => {
