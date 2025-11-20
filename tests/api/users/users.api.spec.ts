@@ -31,7 +31,7 @@ test.describe('User API tests', () => {
         expect(response.status()).toBe(404);
 
         const parsedResponse = await parseResponseUsingZod(response, UserErrorResponse);
-        expect(parsedResponse.message).toContain(`user redirect does not exist [name: ${user.username}]`);
+        expect(parsedResponse.message).toContain(`user redirect does not exist [name: ${user.username.toLocaleLowerCase()}]`);
     });
 
     test('GET repos - returns 200 when authenticated user has repositories', { tag: ['@api', '@smoke', '@user', '@p0'] }, async ({ userService, setupTestRepos, cleanupTestRepos }) => {
@@ -59,7 +59,7 @@ test.describe('User API tests', () => {
         expect(response.status()).toBe(404);
 
         const parsedResponse = await parseResponseUsingZod(response, UserErrorResponse);
-        expect(parsedResponse.message).toContain(`user redirect does not exist [name: ${user.username}]`);
+        expect(parsedResponse.message).toContain(`user redirect does not exist [name: ${user.username.toLocaleLowerCase()}]`);
     });
 
     test('POST user email - returns 200 when new email is added successfully', { tag: ['@api', '@smoke', '@user', '@p0'] }, async ({ userService, setupMultipleTestEmails, cleanupMultipleTestEmails }) => {
@@ -90,18 +90,23 @@ test.describe('User API tests', () => {
         expect(response.status()).toBe(204);
     })
 
-    //TODO add fixtures for token creation and deletion
-    test('POST access token - returns 200 when new token is added successfully', { tag: ['@api', '@smoke', '@user', '@p0'] }, async ({ userService }) => {
+    test('POST access token - returns 200 when new token is added successfully', { tag: ['@api', '@smoke', '@user', '@p0'] }, async ({ userService, cleanupTestToken }) => {
         const scopes = ["all"];
-        const tokenName = "testTokenFromAutomation5"
+        const tokenName = `Token${getTestsPostfix()}`;
         const response = await userService.addUserAccessToken(username, password, tokenName, scopes);
+        console.log(response);
         const token = await parseResponseUsingZod(response, AccessTokenSchema)
 
         expect(token.name).toBe(tokenName)
+        await cleanupTestToken(username, password, tokenName);
+
     });
 
-    test('DELETE access token - returns 204 when token is deleted successfully', { tag: ['@api', '@smoke', '@user', '@p0'] }, async ({ userService }) => {
-        const tokenName = "testTokenFromAutomation5"
+    test('DELETE access token - returns 204 when token is deleted successfully', { tag: ['@api', '@smoke', '@user', '@p0'] }, async ({ userService, setupTestToken }) => {
+        const scopes = ["all"];
+        const tokenName = `Token${getTestsPostfix()}`;
+
+        await setupTestToken(username, password, tokenName, scopes)
         const response = await userService.deleteUserAccessToken(username, password, tokenName);
 
         expect(response.status()).toBe(204);

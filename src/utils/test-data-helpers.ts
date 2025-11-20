@@ -15,3 +15,11 @@ export function generateTestUserData(): TestUser {
         password: process.env.TEST_PASSWORD!
     };
 }
+
+export function getAdminUser(): TestUser {
+    return {
+        username: process.env.ADMIN_USER_NAME!,
+        email: process.env.ADMIN_USER_NAME!,
+        password: process.env.ADMIN_PASSWORD!
+    };
+}

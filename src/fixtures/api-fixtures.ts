@@ -28,6 +28,8 @@ type ApiFixtures = {
         getCreatedEmails: () => string[];
     };
     cleanupMultipleTestEmails: (emailsList: string[]) => void;
+    setupTestToken: (username: string, password: string, tokenName: string, scope: string[]) => Promise<void>;
+    cleanupTestToken: (username: string, password: string, tokenName: string) => void;
 };
 
 export const test = base.extend<ApiFixtures>({
@@ -214,6 +216,55 @@ export const test = base.extend<ApiFixtures>({
         }
 
     },
+
+    setupTestToken: async ({ userService }, use) => {
+        const tokensCreated: Array<{ username: string, password: string, tokenName: string }> = [];
+
+        const createToken = async (username: string, password: string, tokenName: string, scope: string[]) => {
+            console.log(`[DEBUG LOG] Creating token: ${tokenName} for user: ${username}`);
+            const response = await userService.addUserAccessToken(username, password, tokenName, scope);
+
+            if (!response.ok()) {
+                throw new Error(`Failed to create token "${tokenName}": ${response.status()}`);
+            }
+            
+            tokensCreated.push({ username, password, tokenName });
+            console.log(`[DEBUG LOG] Token ${tokenName} CREATED`);
+        }
+
+        await use(createToken);
+
+        // Cleanup - delete created tokens
+        for (const { username, password, tokenName } of tokensCreated) {
+            try {
+                const response = await userService.deleteUserAccessToken(username, password, tokenName);
+                console.log(`[DEBUG LOG] Token ${tokenName} DELETED`);
+                if (!response.ok()) {
+                    console.warn(`Failed to cleanup token ${tokenName}: ${response.status()}`);
+                }
+            } catch (error) {
+                console.warn(`Error cleaning up token ${tokenName}:`, error);
+            }
+        }
+    },
+
+    cleanupTestToken: async ({ userService }, use) => {
+        const tokensToClean: Array<{ username: string, password: string, tokenName: string }> = [];
+
+        const trackTokenForCleanup = (username: string, password: string, tokenName: string) => {
+            tokensToClean.push({ username, password, tokenName });
+        }
+
+        await use(trackTokenForCleanup);
+
+        for (const { username, password, tokenName } of tokensToClean) {
+            console.log(`Cleaning up token: ${tokenName} for user: ${username}`);
+            const response = await userService.deleteUserAccessToken(username, password, tokenName);
+            if (!response.ok()) {
+                console.warn(`Failed to delete token "${tokenName}": ${response.status()}`);
+            }
+        }
+    }
 
 });
 

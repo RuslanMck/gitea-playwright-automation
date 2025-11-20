@@ -60,6 +60,6 @@ test.describe('Admin API tests', () => {
         expect(response.status()).toBe(404);
 
         const parsedResponse = await parseResponseUsingZod(response, UserErrorResponse);
-        expect(parsedResponse.message).toContain(`user redirect does not exist [name: ${user.username}]`);
+        expect(parsedResponse.message).toContain(`user redirect does not exist [name: ${user.username.toLocaleLowerCase()}]`);
     });
 });
