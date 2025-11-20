@@ -22,10 +22,23 @@ test.describe('Repo api tests', () => {
         expect(repository.full_name).toBe(`${username}/${repoName}`);
     });
 
-    test('Delete repo', async ({ repoService }) => {
-        const response = await repoService.deleteRepo(username, repoName);
+    test('Delete repo', async ({ repoService, userService }) => {
 
-        console.log(response);
-        expect(response.status()).toBe(204);
+        const allRepos = await userService.getAllUserRepos(username);
+        const allReposJson = await allRepos.json();
+        const allRepoNames: string[] = allReposJson.map((repo: { name: string }) => repo.name)
+
+        console.log(`Repo length: ${allRepoNames.length}`);
+
+        for (const name of allRepoNames) {
+            console.log(`Repo name to be deleted: ${name}`);
+            const response = await repoService.deleteRepo(username, name);
+            expect(response.status()).toBe(204);
+
+        }
+        // const response = await repoService.deleteRepo(username, repoName);
+
+        // console.log(response);
+        // expect(response.status()).toBe(204);
     });
 });

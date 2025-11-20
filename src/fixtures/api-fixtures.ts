@@ -3,7 +3,7 @@ import { BaseApiClient } from "../api/services/base-api-client.js"
 import { UserService } from '../api/services/user-service.js';
 import { RepoService } from '../api/services/repo-service.js';
 import { AdminService } from '../api/services/admin-service.js';
-import { getTestsPostfix } from '../utils/test-data-helpers.js';
+import { generateTestUserData, getTestsPostfix } from '../utils/test-data-helpers.js';
 
 
 type ApiFixtures = {
@@ -11,13 +11,23 @@ type ApiFixtures = {
     userService: UserService;
     repoService: RepoService;
     adminService: AdminService;
-    setupTestUser: TestUser;
-    cleanupTestUser: (username: string) => void;
+    setupSingleTestUser: TestUser;
+    cleanupSingleTestUser: (testUser: TestUser) => void;
+    setupMultipleTestUsers: {
+        createUsers: (userCount: number) => void;
+        getCreatedUsers: () => TestUser[];
+    };
+    cleanupMultipleTestUsers: (usersList: TestUser[]) => void;
     setupTestRepos: {
         createRepos: (repoCount: number) => void;
         getCreatedRepos: () => string[];
     };
     cleanupTestRepos: (reposList: string[], username: string) => void;
+    setupMultipleTestEmails: {
+        createEmails: (emailsCount: number) => void;
+        getCreatedEmails: () => string[];
+    };
+    cleanupMultipleTestEmails: (emailsList: string[]) => void;
 };
 
 export const test = base.extend<ApiFixtures>({
@@ -47,34 +57,79 @@ export const test = base.extend<ApiFixtures>({
         await use(new AdminService(baseApiClient));
     },
 
-    setupTestUser: async ({ adminService }, use) => {
-
-        const postfix = getTestsPostfix();
-        const username = `TestUser_${postfix}`;
-        const email = `test_${postfix}@yopmail.com`;
-        const password = process.env.TEST_PASSWORD!;
-        const testUser = { username, email, password }
-
-        const response = await adminService.createUser(email, username, password);
-
+    setupSingleTestUser: async ({ adminService }, use) => {
+        const testUser: TestUser = generateTestUserData();
+        const response = await adminService.createUser(testUser.email, testUser.username, testUser.password);
+        console.log(`[DEBUG LOG] Test user ${testUser.username} CREATED`)
         if (!response.ok()) {
-            throw new Error(`Failed to create test user: ${response.status()}`);
+            console.warn(`Failed to create test user ${testUser.username}. Status: ${response.status()}`);
         }
-
-        await use(testUser);
+        use(testUser);
     },
 
-    cleanupTestUser: async ({ adminService }, use) => {
-        const usersToCleanup: string[] = [];
+    cleanupSingleTestUser: async ({ adminService }, use) => {
+        const usersToDelete: TestUser[] = [];
 
-        const trackUserForCleanup = (username: string) => {
-            usersToCleanup.push(username);
-        };
+        const deleteQueue = (testUser: TestUser) => {
+            usersToDelete.push(testUser);
+        }
+
+        use(deleteQueue);
+
+        for (const testUser of usersToDelete) {
+            const response = await adminService.deleteUser(testUser.username);
+            console.log(`[DEBUG LOG] Test user ${testUser.username} DELETED`)
+            if (!response.ok()) {
+                console.warn(`Failed to delete test user: ${testUser.username}. Status: ${response.status()}`);
+            }
+        }
+
+    },
+
+    setupMultipleTestUsers: async ({ adminService }, use) => {
+
+        const userList: TestUser[] = [];
+
+        const createUsers = async (userCount: number) => {
+            for (let i = 0; i < userCount; i++) {
+
+                const testUser = generateTestUserData();
+                const username = testUser.username;
+                const email = testUser.email;
+                const password = testUser.password;
+
+                console.log(`New user is created: ${username}, ${email}, ${password}`);
+
+                userList.push(testUser);
+                const response = await adminService.createUser(email, username, password);
+
+                if (!response.ok()) {
+                    throw new Error(`Failed to create test user: ${response.status()}`);
+                }
+            }
+        }
+
+        const getCreatedUsers = () => userList;
+
+        await use({ createUsers, getCreatedUsers });
+    },
+
+    cleanupMultipleTestUsers: async ({ adminService }, use) => {
+        let usersToClean: TestUser[] = [];
+
+        const trackUserForCleanup = (usersList: TestUser[]) => {
+            usersToClean = usersList;
+        }
 
         await use(trackUserForCleanup);
 
-        for (const username of usersToCleanup) {
-            const response = await adminService.deleteUser(username);
+        console.log(`Users to be cleaned: ${usersToClean.length}`);
+
+
+        for (const user of usersToClean) {
+            console.log(`Users ${user.username} is deleted`);
+
+            const response = await adminService.deleteUser(user.username);
             if (!response.ok()) {
                 console.warn(`Failed to delete test user: ${response.status()}`);
             }
@@ -89,7 +144,7 @@ export const test = base.extend<ApiFixtures>({
             for (let i = 0; i < repoCount; i++) {
                 const repoName = `${process.env.REPO_NAME}_${getTestsPostfix()}`;
                 repoNamesList.push(repoName);
-                console.log(`------> repo ${repoName} is ADDED`);
+                console.log(`[DEBUG LOG] repo ${repoName} is ADDED`);
                 const response = await userService.createUserRepo(repoName);
 
                 if (!response.ok()) {
@@ -110,7 +165,7 @@ export const test = base.extend<ApiFixtures>({
             for (const repo of repoNamesList) {
 
                 const response = await repoService.deleteRepo(username, repo)
-                console.log(`------> repo ${repo} is DELETED`)
+                console.log(`[DEBUG LOG] repo ${repo} is DELETED`)
 
                 if (!response.ok()) {
                     throw new Error(`Failed to delete test repos: ${response.status()}`);
@@ -120,10 +175,49 @@ export const test = base.extend<ApiFixtures>({
 
         await use(cleanupRepos);
     },
-    
+
+    setupMultipleTestEmails: async ({ userService }, use) => {
+        const emailsList: string[] = [];
+
+        const createEmails = async (emailsCount: number) => {
+            for (let i = 0; i < emailsCount; i++) {
+                const email = generateTestUserData().email;
+                emailsList.push(email);
+                console.log(`New email: ${email} is ADDED`);
+            }
+
+            const response = await userService.addUserEmail(emailsList);
+
+            if (!response.ok()) {
+                throw new Error(`Failed to add emails: ${response.status()}`);
+            }
+        }
+
+        const getCreatedEmails = () => emailsList;
+
+        await use({ createEmails, getCreatedEmails });
+    },
+
+    cleanupMultipleTestEmails: async ({ userService }, use) => {
+        let emailsToClean: string[] = [];
+
+        const trackEmailsForCleanup = (emailsList: string[]) => {
+            emailsToClean = emailsList;
+        }
+
+        await use(trackEmailsForCleanup);
+
+        console.log(`Emails to be cleaned: ${emailsToClean.length}`);
+        const response = await userService.deleteUserEmail(emailsToClean);
+        if (!response.ok()) {
+            console.warn(`Failed to delete test user: ${response.status()}`);
+        }
+
+    },
+
 });
 
-type TestUser = {
+export type TestUser = {
     username: string;
     email: string;
     password: string;
