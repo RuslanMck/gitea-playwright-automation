@@ -168,19 +168,30 @@ const test = base.extend<MyFixtures>({
 
 ## 8. Test Naming (Titles)
 
-**Standard: BDD-style (Gherkin + Jest conventions)**
+**Standard: BDD-style (Gherkin + Jest conventions) for UI tests**
 
-**8.1 Pattern**
+**8.1 Pattern for UI tests**
 
-`should <expected behavior> when <context>`
+`<Feature> — <expected behavior> when/after/while <context>`
 
 **8.2 Examples**
 ```
-test('should return 401 when token is missing', ...)
-test('should create user when data is valid', ...)
-test('should show dashboard after successful login', ...)
+test('login — error is displayed while using incorrect password', ...)
+test('signup — account created when valid data is provided', ...)
+test('repository creation — creates repository using valid repo name', ...)
 ```
 
+**8.3 Pattern for API tests**
+
+`<HTTP method/operation> <resource/action> — <expected outcome> when <context>`
+
+```
+test('GET email - returns 404 when email is missing', async () => { ... })
+test('GET email - returns 200 when email exists', async () => { ... })
+test('POST email - returns 200 when new email is added successfully', async () => { ... })
+test('POST email - returns 422 when email already exists', async () => { ... })
+test('DELETE email — returns 403 when provided email does not exists', () => { ... })
+```
 ---
 
 ## 9. API Schema Naming (Zod)
