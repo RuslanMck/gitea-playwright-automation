@@ -3,7 +3,7 @@ import { NotFoundRepoOwnerSchema, NotFoundRepoSchema, SingleRepoResponseSchema }
 import { parseResponseUsingZod } from '../../../src/utils/api-helpers.js';
 import { getTestsPostfix } from '../../../src/utils/test-data-helpers.js';
 
-test.describe('Repo api tests', () => {
+test.describe('Repo API tests', () => {
     const username = process.env.ADMIN_USER_NAME!;
 
     test('GET repo - returns 200 when repo exists', { tag: ['@api', '@smoke', '@repo', '@p0'] }, async ({ repoService, cleanupTestRepos, setupTestRepos }) => {
