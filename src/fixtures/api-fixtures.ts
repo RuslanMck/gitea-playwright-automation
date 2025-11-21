@@ -227,7 +227,7 @@ export const test = base.extend<ApiFixtures>({
             if (!response.ok()) {
                 throw new Error(`Failed to create token "${tokenName}": ${response.status()}`);
             }
-            
+
             tokensCreated.push({ username, password, tokenName });
             console.log(`[DEBUG LOG] Token ${tokenName} CREATED`);
         }
@@ -251,7 +251,9 @@ export const test = base.extend<ApiFixtures>({
                 console.warn(`Failed to delete token "${tokenName}": ${response.status()}`);
             }
         }
-    }
+    },
+
+    
 
 });
 

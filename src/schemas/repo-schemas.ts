@@ -17,6 +17,18 @@ export const SingleRepoResponseSchema = z.object({
 
 export const MultipleReposResponseSchema = z.array(SingleRepoResponseSchema);
 
+export const NotFoundRepoSchema = z.object({
+    errors: z.string().nullable(),
+    message: z.string(),
+    url: z.url(),
+});
+
+export const NotFoundRepoOwnerSchema = z.object({
+    errors: z.array(z.string()),
+    message: z.string(),
+    url: z.url(),
+});
+
 export type SingleRepoResponse = z.infer<typeof SingleRepoResponseSchema>;
 export type MultipleReposResponse = z.infer<typeof MultipleReposResponseSchema>;
 
