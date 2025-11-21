@@ -14,10 +14,10 @@ test.describe('User API tests', () => {
         const user = setupSingleTestUser;
         const response = await userService.getUserByUsername(user.username);
 
-        expect('password' in response).toBe(false);
         expect(response.status()).toBe(200);
 
         const parsedResponse = await parseResponseUsingZod(response, UserResponseSchema);
+        expect(parsedResponse).not.toHaveProperty('password');
 
         expect(parsedResponse.login).toBe(user.username);
         expect(parsedResponse.email).toBe(user.email);
@@ -38,7 +38,7 @@ test.describe('User API tests', () => {
         const reposCount: number = 5;
         await setupTestRepos.createRepos(reposCount);
 
-        const testReposList = await setupTestRepos.getCreatedRepos();
+        const testReposList = setupTestRepos.getCreatedRepos();
         const response = await userService.getAllUserRepos(username);
         expect(response.status()).toBe(200);
 
@@ -46,7 +46,6 @@ test.describe('User API tests', () => {
         expect(parsedResponse.length).toBeGreaterThanOrEqual(reposCount);
 
         const repoNames = parsedResponse.map(repo => repo.name);
-        console.log(repoNames);
         expect(repoNames).toEqual(expect.arrayContaining(testReposList));
 
         await cleanupTestRepos(testReposList, username);
@@ -69,13 +68,12 @@ test.describe('User API tests', () => {
         for (let i = 0; i < 4; i++) {
             const email = generateTestUserData().email;
             emailsList.push(email);
-            console.log(`New email: ${email} is ADDED`);
         }
 
         const response = await userService.addUserEmail(emailsList);
+        expect(response.status()).toBe(201);
         const parsedResponse = await parseResponseUsingZod(response, EmailsResponseSchema)
 
-        expect(emailsList).not.toBeNull();
         const responseEmails = parsedResponse!.map(singleEmail => singleEmail.email);
         expect(responseEmails).toEqual(expect.arrayContaining(emailsList));
 
@@ -84,7 +82,7 @@ test.describe('User API tests', () => {
 
     test('DELETE user email - returns 204 when email is deleted successfully', { tag: ['@api', '@smoke', '@user', '@p0'] }, async ({ userService, setupMultipleTestEmails, cleanupMultipleTestEmails }) => {
         await setupMultipleTestEmails.createEmails(5);
-        const emails = await setupMultipleTestEmails.getCreatedEmails();
+        const emails = setupMultipleTestEmails.getCreatedEmails();
         const response = await userService.deleteUserEmail(emails);
 
         expect(response.status()).toBe(204);
@@ -94,7 +92,7 @@ test.describe('User API tests', () => {
         const scopes = ["all"];
         const tokenName = `Token${getTestsPostfix()}`;
         const response = await userService.addUserAccessToken(username, password, tokenName, scopes);
-        console.log(response);
+        expect(response.status()).toBe(201);
         const token = await parseResponseUsingZod(response, AccessTokenSchema)
 
         expect(token.name).toBe(tokenName)

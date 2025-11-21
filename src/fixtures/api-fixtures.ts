@@ -62,7 +62,6 @@ export const test = base.extend<ApiFixtures>({
     setupSingleTestUser: async ({ adminService }, use) => {
         const testUser: TestUser = generateTestUserData();
         const response = await adminService.createUser(testUser.email, testUser.username, testUser.password);
-        console.log(`[DEBUG LOG] Test user ${testUser.username} CREATED`)
         if (!response.ok()) {
             console.warn(`Failed to create test user ${testUser.username}. Status: ${response.status()}`);
         }
@@ -80,7 +79,6 @@ export const test = base.extend<ApiFixtures>({
 
         for (const testUser of usersToDelete) {
             const response = await adminService.deleteUser(testUser.username);
-            console.log(`[DEBUG LOG] Test user ${testUser.username} DELETED`)
             if (!response.ok()) {
                 console.warn(`Failed to delete test user: ${testUser.username}. Status: ${response.status()}`);
             }
@@ -99,8 +97,6 @@ export const test = base.extend<ApiFixtures>({
                 const username = testUser.username;
                 const email = testUser.email;
                 const password = testUser.password;
-
-                console.log(`New user is created: ${username}, ${email}, ${password}`);
 
                 userList.push(testUser);
                 const response = await adminService.createUser(email, username, password);
@@ -125,12 +121,7 @@ export const test = base.extend<ApiFixtures>({
 
         await use(trackUserForCleanup);
 
-        console.log(`Users to be cleaned: ${usersToClean.length}`);
-
-
         for (const user of usersToClean) {
-            console.log(`Users ${user.username} is deleted`);
-
             const response = await adminService.deleteUser(user.username);
             if (!response.ok()) {
                 console.warn(`Failed to delete test user: ${response.status()}`);
@@ -146,7 +137,6 @@ export const test = base.extend<ApiFixtures>({
             for (let i = 0; i < repoCount; i++) {
                 const repoName = `${process.env.REPO_NAME}_${getTestsPostfix()}`;
                 repoNamesList.push(repoName);
-                console.log(`[DEBUG LOG] repo ${repoName} is ADDED`);
                 const response = await userService.createUserRepo(repoName);
 
                 if (!response.ok()) {
@@ -167,7 +157,6 @@ export const test = base.extend<ApiFixtures>({
             for (const repo of repoNamesList) {
 
                 const response = await repoService.deleteRepo(username, repo)
-                console.log(`[DEBUG LOG] repo ${repo} is DELETED`)
 
                 if (!response.ok()) {
                     throw new Error(`Failed to delete test repos: ${response.status()}`);
@@ -185,7 +174,6 @@ export const test = base.extend<ApiFixtures>({
             for (let i = 0; i < emailsCount; i++) {
                 const email = generateTestUserData().email;
                 emailsList.push(email);
-                console.log(`New email: ${email} is ADDED`);
             }
 
             const response = await userService.addUserEmail(emailsList);
@@ -209,7 +197,6 @@ export const test = base.extend<ApiFixtures>({
 
         await use(trackEmailsForCleanup);
 
-        console.log(`Emails to be cleaned: ${emailsToClean.length}`);
         const response = await userService.deleteUserEmail(emailsToClean);
         if (!response.ok()) {
             console.warn(`Failed to delete test user: ${response.status()}`);
@@ -221,7 +208,6 @@ export const test = base.extend<ApiFixtures>({
         const tokensCreated: Array<{ username: string, password: string, tokenName: string }> = [];
 
         const createToken = async (username: string, password: string, tokenName: string, scope: string[]) => {
-            console.log(`[DEBUG LOG] Creating token: ${tokenName} for user: ${username}`);
             const response = await userService.addUserAccessToken(username, password, tokenName, scope);
 
             if (!response.ok()) {
@@ -229,7 +215,6 @@ export const test = base.extend<ApiFixtures>({
             }
 
             tokensCreated.push({ username, password, tokenName });
-            console.log(`[DEBUG LOG] Token ${tokenName} CREATED`);
         }
 
         await use(createToken);
@@ -245,7 +230,6 @@ export const test = base.extend<ApiFixtures>({
         await use(trackTokenForCleanup);
 
         for (const { username, password, tokenName } of tokensToClean) {
-            console.log(`Cleaning up token: ${tokenName} for user: ${username}`);
             const response = await userService.deleteUserAccessToken(username, password, tokenName);
             if (!response.ok()) {
                 console.warn(`Failed to delete token "${tokenName}": ${response.status()}`);
@@ -253,7 +237,7 @@ export const test = base.extend<ApiFixtures>({
         }
     },
 
-    
+
 
 });
 
