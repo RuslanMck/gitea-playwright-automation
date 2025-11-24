@@ -30,9 +30,10 @@ type ApiFixtures = {
     cleanupMultipleTestEmails: (emailsList: string[]) => void;
     setupTestToken: (username: string, password: string, tokenName: string, scope: string[]) => Promise<void>;
     cleanupTestToken: (username: string, password: string, tokenName: string) => void;
+    deleteAllTestUsers: () => void;
 };
 
-export const test = base.extend<ApiFixtures>({
+export const apiFixtures = base.extend<ApiFixtures>({
 
     baseApiClient: async ({ request }, use) => {
 
@@ -65,7 +66,7 @@ export const test = base.extend<ApiFixtures>({
         if (!response.ok()) {
             console.warn(`Failed to create test user ${testUser.username}. Status: ${response.status()}`);
         }
-        use(testUser);
+        await use(testUser);
     },
 
     cleanupSingleTestUser: async ({ adminService }, use) => {
@@ -75,9 +76,10 @@ export const test = base.extend<ApiFixtures>({
             usersToDelete.push(testUser);
         }
 
-        use(deleteQueue);
+        await use(deleteQueue);
 
         for (const testUser of usersToDelete) {
+            console.debug(`[DEBUG LOG] User ${testUser.username}; ${testUser.email} is DELETED.`);
             const response = await adminService.deleteUser(testUser.username);
             if (!response.ok()) {
                 console.warn(`Failed to delete test user: ${testUser.username}. Status: ${response.status()}`);
@@ -236,6 +238,37 @@ export const test = base.extend<ApiFixtures>({
             }
         }
     },
+
+    deleteAllTestUsers: async ({ adminService }, use) => {
+
+        await use(async () => {
+            const response = await adminService.getAllUsers();
+
+            if (!response.ok()) {
+                console.warn(`Failed to get users: ${response.status()}`);
+                return;
+            }
+
+            const users: TestUser[] = await response.json();
+            console.debug(`[DELETE ALL LOG] All users count ${users.length}`)
+
+            const testUsers = users.filter(user =>
+                user.username.toLowerCase().includes('testuser') ||
+                user.username.toLowerCase().includes('_test_')
+            );
+
+            console.debug(`[DELETE ALL LOG] All test users count ${testUsers.length}`)
+            for (const user of testUsers) {
+                console.debug(`[DEBUG LOG] deleteAllTestUsers: user to delete: ${user.username}`)
+
+                const deleteResponse = await adminService.deleteUser(user.username);
+                if (!deleteResponse.ok()) {
+                    console.warn(`Failed to delete test user "${user.username}": ${deleteResponse.status()}`);
+                }
+            }
+        })
+
+    }
 
 
 

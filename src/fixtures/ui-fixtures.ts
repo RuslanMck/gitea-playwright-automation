@@ -10,7 +10,7 @@ type UiFixtures = {
 }
 
 
-export const test = base.extend<UiFixtures>({
+export const uiFixtures = base.extend<UiFixtures>({
     registrationPage: async ({ page }, use) => {
         await use(new RegisterPage(page));
     },

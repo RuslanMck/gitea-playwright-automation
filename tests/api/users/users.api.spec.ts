@@ -1,4 +1,4 @@
-import { test, expect } from '../../../src/fixtures/api-fixtures.js';
+import { apiFixtures, expect } from '../../../src/fixtures/api-fixtures.js';
 import { EmailsResponseSchema } from '../../../src/schemas/email-schemas.js';
 import { MultipleReposResponseSchema } from '../../../src/schemas/repo-schemas.js';
 import { AccessTokenSchema } from '../../../src/schemas/token-schemas.js';
@@ -6,11 +6,11 @@ import { UserErrorResponse, UserResponseSchema } from '../../../src/schemas/user
 import { parseResponseUsingZod } from '../../../src/utils/api-helpers.js';
 import { generateTestUserData, getTestsPostfix } from '../../../src/utils/test-data-helpers.js';
 
-test.describe('User API tests', () => {
+apiFixtures.describe('User API tests', () => {
     const username = process.env.ADMIN_USER_NAME!;
     const password = process.env.ADMIN_PASSWORD!;
 
-    test('GET user by name - returns 200 when user exists', { tag: ['@api', '@smoke', '@user', '@p0'] }, async ({ userService, cleanupSingleTestUser, setupSingleTestUser }) => {
+    apiFixtures('GET user by name - returns 200 when user exists', { tag: ['@api', '@smoke', '@user', '@p0'] }, async ({ userService, cleanupSingleTestUser, setupSingleTestUser }) => {
         const user = setupSingleTestUser;
         const response = await userService.getUserByUsername(user.username);
 
@@ -25,7 +25,7 @@ test.describe('User API tests', () => {
         cleanupSingleTestUser(user);
     });
 
-    test('GET user by name - returns 404 when username does not exist', { tag: ['@api', '@regression', '@user', '@validation', '@p1'] }, async ({ userService }) => {
+    apiFixtures('GET user by name - returns 404 when username does not exist', { tag: ['@api', '@regression', '@user', '@validation', '@p1'] }, async ({ userService }) => {
         const user = generateTestUserData();
         const response = await userService.getUserByUsername(user.username);
         expect(response.status()).toBe(404);
@@ -34,7 +34,7 @@ test.describe('User API tests', () => {
         expect(parsedResponse.message).toContain(`user redirect does not exist [name: ${user.username.toLocaleLowerCase()}]`);
     });
 
-    test('GET repos - returns 200 when authenticated user has repositories', { tag: ['@api', '@smoke', '@user', '@p0'] }, async ({ userService, setupTestRepos, cleanupTestRepos }) => {
+    apiFixtures('GET repos - returns 200 when authenticated user has repositories', { tag: ['@api', '@smoke', '@user', '@p0'] }, async ({ userService, setupTestRepos, cleanupTestRepos }) => {
         const reposCount: number = 5;
         await setupTestRepos.createRepos(reposCount);
 
@@ -52,7 +52,7 @@ test.describe('User API tests', () => {
 
     });
 
-    test('GET repos - returns 404 when username does not exist', { tag: ['@api', '@regression', '@user', '@validation', '@p1'] }, async ({ userService }) => {
+    apiFixtures('GET repos - returns 404 when username does not exist', { tag: ['@api', '@regression', '@user', '@validation', '@p1'] }, async ({ userService }) => {
         const user = generateTestUserData();
         const response = await userService.getAllUserRepos(user.username);
         expect(response.status()).toBe(404);
@@ -61,7 +61,7 @@ test.describe('User API tests', () => {
         expect(parsedResponse.message).toContain(`user redirect does not exist [name: ${user.username.toLocaleLowerCase()}]`);
     });
 
-    test('POST user email - returns 200 when new email is added successfully', { tag: ['@api', '@smoke', '@user', '@p0'] }, async ({ userService, setupMultipleTestEmails, cleanupMultipleTestEmails }) => {
+    apiFixtures('POST user email - returns 200 when new email is added successfully', { tag: ['@api', '@smoke', '@user', '@p0'] }, async ({ userService, setupMultipleTestEmails, cleanupMultipleTestEmails }) => {
 
         const emailsList: string[] = [];
 
@@ -80,7 +80,7 @@ test.describe('User API tests', () => {
         await cleanupMultipleTestEmails(emailsList);
     });
 
-    test('DELETE user email - returns 204 when email is deleted successfully', { tag: ['@api', '@smoke', '@user', '@p0'] }, async ({ userService, setupMultipleTestEmails, cleanupMultipleTestEmails }) => {
+    apiFixtures('DELETE user email - returns 204 when email is deleted successfully', { tag: ['@api', '@smoke', '@user', '@p0'] }, async ({ userService, setupMultipleTestEmails, cleanupMultipleTestEmails }) => {
         await setupMultipleTestEmails.createEmails(5);
         const emails = setupMultipleTestEmails.getCreatedEmails();
         const response = await userService.deleteUserEmail(emails);
@@ -88,7 +88,7 @@ test.describe('User API tests', () => {
         expect(response.status()).toBe(204);
     })
 
-    test('POST access token - returns 200 when new token is added successfully', { tag: ['@api', '@smoke', '@user', '@p0'] }, async ({ userService, cleanupTestToken }) => {
+    apiFixtures('POST access token - returns 200 when new token is added successfully', { tag: ['@api', '@smoke', '@user', '@p0'] }, async ({ userService, cleanupTestToken }) => {
         const scopes = ["all"];
         const tokenName = `Token${getTestsPostfix()}`;
         const response = await userService.addUserAccessToken(username, password, tokenName, scopes);
@@ -100,7 +100,7 @@ test.describe('User API tests', () => {
 
     });
 
-    test('DELETE access token - returns 204 when token is deleted successfully', { tag: ['@api', '@smoke', '@user', '@p0'] }, async ({ userService, setupTestToken }) => {
+    apiFixtures('DELETE access token - returns 204 when token is deleted successfully', { tag: ['@api', '@smoke', '@user', '@p0'] }, async ({ userService, setupTestToken }) => {
         const scopes = ["all"];
         const tokenName = `Token${getTestsPostfix()}`;
 
