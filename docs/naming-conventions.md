@@ -172,25 +172,25 @@ const test = base.extend<MyFixtures>({
 
 **8.1 Pattern for UI tests**
 
-`<Feature> — <expected behavior> when/after/while <context>`
+`<Feature> - <expected behavior> when/after/while <context>`
 
 **8.2 Examples**
 ```
-test('login — error is displayed while using incorrect password', ...)
-test('signup — account created when valid data is provided', ...)
-test('repository creation — creates repository using valid repo name', ...)
+test('login - error is displayed while using incorrect password', ...)
+test('signup - account created when valid data is provided', ...)
+test('repository creation - creates repository using valid repo name', ...)
 ```
 
 **8.3 Pattern for API tests**
 
-`<HTTP method/operation> <resource/action> — <expected outcome> when <context>`
+`<HTTP method/operation> <resource/action> - <expected outcome> when <context>`
 
 ```
 test('GET email - returns 404 when email is missing', async () => { ... })
 test('GET email - returns 200 when email exists', async () => { ... })
 test('POST email - returns 200 when new email is added successfully', async () => { ... })
 test('POST email - returns 422 when email already exists', async () => { ... })
-test('DELETE email — returns 403 when provided email does not exists', () => { ... })
+test('DELETE email - returns 403 when provided email does not exists', () => { ... })
 ```
 ---
 
