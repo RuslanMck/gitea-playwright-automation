@@ -17,7 +17,6 @@ APIs are prioritized using the P0/P1/P2 model:
 - **P2 - Out of scope:** Not required for the current iteration.
 
 #### **P0 API Areas**
-(Describe endpoints, but not test cases yet – those go to Section 3.)
 - Users / Authentication:
   - `GET /users/{username}`
   - `POST /user/emails`
@@ -35,7 +34,6 @@ APIs are prioritized using the P0/P1/P2 model:
   - `DELETE /admin/users`
 
 #### **P1 API Areas**
-(List endpoints planned for later phases.)
 - Issues:
   - `POST /repos/{owner}/{repo}/issues`
   - `GET /repos/{owner}/{repo}/issues`
