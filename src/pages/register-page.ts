@@ -1,4 +1,4 @@
-import type { Locator, Page } from "@playwright/test";
+import { expect, type Locator, type Page } from "@playwright/test";
 import { BasePage } from "./base-page.js";
 
 export class RegisterPage extends BasePage {
@@ -9,6 +9,7 @@ export class RegisterPage extends BasePage {
     readonly passwordInput: Locator;
     readonly passwordConfirmInput: Locator;
     readonly registerButton: Locator;
+    readonly validationFleshError: Locator;
 
 
     constructor(page: Page) {
@@ -18,6 +19,32 @@ export class RegisterPage extends BasePage {
         this.emailInput = page.locator('#email');
         this.passwordInput = page.locator('#password');
         this.passwordConfirmInput = page.locator('#retype');
-        this.registerButton = page.getByRole('button', {name: 'Register Account'});
+        this.registerButton = page.getByRole('button', { name: 'Register Account' });
+        this.validationFleshError = page.locator('.flash-error p');
     }
+
+    async open(): Promise<void> {
+        await this.page.goto('/user/sign_up')
+    }
+
+    async fillUsername(username: string): Promise<void> {
+        await this.usernameInput.fill(username);
+    }
+
+    async fillEmail(email: string): Promise<void> {
+        await this.emailInput.fill(email);
+    }
+
+    async fillPassword(password: string): Promise<void> {
+        await this.passwordInput.fill(password);
+    }
+
+    async fillConfirmPassword(confirmPassword: string): Promise<void> {
+        await this.passwordConfirmInput.fill(confirmPassword);
+    }
+
+    async clickRegistrationButton(): Promise<void> {
+        await this.registerButton.click();
+    }
+
 }

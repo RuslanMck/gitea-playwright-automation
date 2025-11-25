@@ -14,4 +14,9 @@ export class AdminService {
         const response = await this.api.delete(ADMIN_ENDPOINTS.deleteUser(username));
         return response;
     }
+
+    async getAllUsers() {
+        const response = await this.api.get(ADMIN_ENDPOINTS.user);
+        return response;
+    }
 }
