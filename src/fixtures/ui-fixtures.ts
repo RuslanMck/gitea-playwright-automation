@@ -2,11 +2,13 @@ import { PublicHomePage } from "../pages/public-home-page.js"
 import { test as base } from "@playwright/test"
 import { RegisterPage } from "../pages/register-page.js";
 import { SignInPage } from "../pages/sign-in-page.js";
+import { DashboardPage } from "../pages/dashboard-page.js";
 
 type UiFixtures = {
     publicHomePage: PublicHomePage;
     registrationPage: RegisterPage;
     signInPage: SignInPage;
+    dashboardPage: DashboardPage;
 }
 
 
@@ -21,6 +23,10 @@ export const uiFixtures = base.extend<UiFixtures>({
 
     signInPage: async ({page}, use) => {
         await use(new SignInPage(page));
+    },
+
+    dashboardPage: async ({page}, use) => {
+        await use(new DashboardPage(page));
     }
 });
 

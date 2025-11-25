@@ -9,6 +9,7 @@ export class RegisterPage extends BasePage {
     readonly passwordInput: Locator;
     readonly passwordConfirmInput: Locator;
     readonly registerButton: Locator;
+    readonly validationFleshError: Locator;
 
 
     constructor(page: Page) {
@@ -19,6 +20,7 @@ export class RegisterPage extends BasePage {
         this.passwordInput = page.locator('#password');
         this.passwordConfirmInput = page.locator('#retype');
         this.registerButton = page.getByRole('button', { name: 'Register Account' });
+        this.validationFleshError = page.locator('.flash-error p');
     }
 
     async open(): Promise<void> {
