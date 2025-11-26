@@ -2,7 +2,7 @@ import { type Locator, type Page } from '@playwright/test'
 
 export abstract class BasePage {
     protected readonly page: Page;
-    abstract readonly path: string;
+    abstract readonly path: string | RegExp;
 
     protected constructor(page: Page) {
         this.page = page;

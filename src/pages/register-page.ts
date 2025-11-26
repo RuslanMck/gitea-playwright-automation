@@ -1,15 +1,16 @@
-import { expect, type Locator, type Page } from "@playwright/test";
+import { type Locator, type Page } from "@playwright/test";
 import { BasePage } from "./base-page.js";
+import { PAGE_PATHS } from "../constants/page-paths.js";
 
 export class RegisterPage extends BasePage {
-    readonly path = '/user/sign_up';
+    readonly path = PAGE_PATHS.REGISTRATION_PAGE;
     readonly registrationForm: Locator;
     readonly usernameInput: Locator;
     readonly emailInput: Locator;
     readonly passwordInput: Locator;
     readonly passwordConfirmInput: Locator;
     readonly registerButton: Locator;
-    readonly validationFleshError: Locator;
+    readonly validationFlashError: Locator;
 
 
     constructor(page: Page) {
@@ -20,11 +21,11 @@ export class RegisterPage extends BasePage {
         this.passwordInput = page.locator('#password');
         this.passwordConfirmInput = page.locator('#retype');
         this.registerButton = page.getByRole('button', { name: 'Register Account' });
-        this.validationFleshError = page.locator('.flash-error p');
+        this.validationFlashError = page.locator('.flash-error p');
     }
 
     async open(): Promise<void> {
-        await this.page.goto('/user/sign_up')
+        await this.goto();
     }
 
     async fillUsername(username: string): Promise<void> {
@@ -45,6 +46,14 @@ export class RegisterPage extends BasePage {
 
     async clickRegistrationButton(): Promise<void> {
         await this.registerButton.click();
+    }
+
+    async register(username: string, email: string, password: string, confirmPassword: string): Promise<void> {
+        await this.fillUsername(username);
+        await this.fillEmail(email);
+        await this.fillPassword(password);
+        await this.fillConfirmPassword(confirmPassword);
+        await this.clickRegistrationButton();
     }
 
 }

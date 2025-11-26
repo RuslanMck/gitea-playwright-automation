@@ -1,18 +1,19 @@
 import type { Locator, Page } from "@playwright/test";
 import { HeaderComponent } from "../components/header.component.js";
 import { BasePage } from "./base-page.js";
+import { PAGE_PATHS } from "../constants/page-paths.js";
 
 export class PublicHomePage extends BasePage {
-    readonly path = '/';
+    readonly path = PAGE_PATHS.PUBLIC_HOMEPAGE;
     readonly header: HeaderComponent;
     readonly logo: Locator;
-    readonly pageMainText: Locator;
+    readonly heroTitle: Locator;
 
     constructor(page: Page) {
         super(page);
         this.header = new HeaderComponent(page);
         this.logo = page.locator('img.logo[alt="Logo"]');
-        this.pageMainText = page.locator('h1.title');
+        this.heroTitle = page.locator('h1.title');
     }
 
     async open(): Promise<void> {
@@ -28,7 +29,7 @@ export class PublicHomePage extends BasePage {
     }
 
     async getMainTitleText(): Promise<string | null> {
-        return await this.pageMainText.textContent();
+        return await this.heroTitle.textContent();
     }
 
-}   
+}
