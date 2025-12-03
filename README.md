@@ -72,45 +72,38 @@ This repository contains a test automation framework that covers:
 - Docker (optional, for local Gitea instance)
 
 ### Installation
-
-   ```
-        git clone https://github.com/RuslanMck/gitea-playwright-automation
-        cd gitea-playwright-automation
-        npm install
-        npx playwright install --with-deps
-   ```
+```
+git clone https://github.com/RuslanMck/gitea-playwright-automation
+cd gitea-playwright-automation
+npm install
+npx playwright install --with-deps
+```
 
 ### Environment Variables
-
-    ```
-        cp .env.example .env
-    ```
-
+```
+cp .env.example .env
+```
 ### Running the Tests
 
 **Run all tests:**
-
-   ```
-        npx playwright test
-   ```
+```
+npx playwright test
+```
 
 **Run only UI tests:**
-
-   ```
-        npx playwright test --grep @ui
-   ```
+```
+npx playwright test --grep @ui
+```
 
 **Run only API tests:**
-
-   ```
-        npx playwright test --grep @api
-   ```
+```
+npx playwright test --grep @api
+```
 
 **Open latest HTML report:**
-
-    ```
-          npx playwright show-report
-    ```
+```
+npx playwright show-report
+```
 
 ---
 
@@ -132,10 +125,9 @@ Use shared fixtures to combine API setup with UI verification.
 ## Reporting
 Test results are published as HTML reports using Playwright's built-in HTML reporter.
 For local runs, open the report using:
-
-    ```
-          npx playwright show-report
-    ```
+```
+npx playwright show-report
+```
 
 For CI runs, reports are published to GitHub Pages. 
 Accessible at: **_Will be added after first CI run_**
@@ -180,7 +172,8 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 > This project is an independent test automation framework created for educational and portfolio purposes. 
 > It does not include, modify, or distribute any part of the Gitea source code.
 > * Gitea is an open-source project maintained by the Gitea Authors: https://gitea.io
-> * All rights, trademarks, and ownership of Gitea belong to their respective maintainers.<br/>
+> * All rights, trademarks, and ownership of Gitea belong to their respective maintainers.
+>
 > This repository contains only my own code, written to automate the Gitea application using Playwright and TypeScript.
 
 ## Contact
