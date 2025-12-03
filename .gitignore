@@ -1,5 +1,5 @@
 #git
-.github/
+copilot-instructions.md
 
 # Dependencies
 node_modules/
@@ -22,7 +22,6 @@ playwright/.cache/
 # Environment variables
 .env
 .env.local
-.env.*
 .env.*.local
 tests/.env
 
