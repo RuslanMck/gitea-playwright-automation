@@ -2,7 +2,9 @@
   "type": "module",
   "name": "gitea-playwright-automation",
   "version": "1.0.0",
-  "description": "",
+  "description": "Modern Playwright + TypeScript test automation framework for Gitea",
+  "author": "Ruslan Marchuk",
+  "license": "MIT",
   "main": "index.js",
   "directories": {
     "doc": "docs",
@@ -11,15 +13,15 @@
   "scripts": {
     "test": "playwright test",
     "test:ui": "playwright test tests/ui",
-    "test:api": "playwright test tests/api"
+    "test:api": "playwright test tests/api",
+    "test:chromium": "playwright test --project=chromium",
+    "test:report": "playwright show-report"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/RuslanMck/gitea-playwright-automation.git"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
   "bugs": {
     "url": "https://github.com/RuslanMck/gitea-playwright-automation/issues"
   },

@@ -137,7 +137,7 @@ export const apiFixtures = base.extend<ApiFixtures>({
         const createRepos = async (repoCount: number) => {
 
             for (let i = 0; i < repoCount; i++) {
-                const repoName = `${process.env.REPO_NAME}_${getTestsPostfix()}`;
+                const repoName = `${process.env.TEST_REPO_NAME}_${getTestsPostfix()}`;
                 repoNamesList.push(repoName);
                 const response = await userService.createUserRepo(repoName);
 
