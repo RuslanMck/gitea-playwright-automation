@@ -47,17 +47,24 @@ jobs:
                   -p 3000:3000 \
                   gitea/gitea:1.24.6
 
-            - name: Check if Gitea is ready
+            - name: Wait for Gitea to become ready
               run: |
                 echo "Waiting for Gitea to start..."
-                for i in {1..30}; do
-                  if curl -sf http://localhost:3000/api/v1/version; 
-                  then
-                    echo "Gitea is ready!"
+                echo "Checking Docker container status..."
+                docker ps -a
+                
+                for i in {1..10}; do
+                  echo "Attempt $i/10: Checking Gitea API..."
+                  if curl -sf http://localhost:3000/api/v1/version > /dev/null 2>&1; then
+                    echo "✓ Gitea is ready!"
+                    curl -s http://localhost:3000/api/v1/version
                     exit 0
                   fi
-                  sleep 2
+                  sleep 10
                 done
-                echo "Gitea failed to start in time."
+                
+                echo "✗ Gitea failed to start in time."
+                echo "Container logs:"
+                docker logs gitea_test_environment
                 exit 1
 
