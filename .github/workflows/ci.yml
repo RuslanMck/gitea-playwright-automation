@@ -101,5 +101,9 @@ jobs:
                   | grep -oP '(?<=Access token was successfully created: ).*')
                 echo "token=$TOKEN" >> $GITHUB_OUTPUT
                 echo "✓ API token generated"
-                echo "DEBUG: Full token = $TOKEN"
+
+            - name: Run Playwright tests
+              env:
+                ADMIN_API_TOKEN: ${{ steps.token.outputs.token }}
+              run: npx playwright test
 
