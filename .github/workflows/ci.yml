@@ -3,6 +3,16 @@ name: CI Tests
 on:
     workflow_dispatch:
 
+# Global environment variables for the entire workflow
+env:
+    ADMIN_USER_NAME: QaAdmin
+    ADMIN_PASSWORD: 123qweQWE
+    ADMIN_EMAIL: test8849email@yopmail.com
+    GITEA_BASE_URL: http://localhost:3000
+    GITEA_API_BASE_URL: http://localhost:3000/api/v1/
+    TEST_PASSWORD: test123
+    REPO_NAME: TestRepo
+
 jobs:
     test:
         name: CI health check test run
@@ -45,26 +55,32 @@ jobs:
                 docker run -d \
                   --name gitea_test_environment \
                   -p 3000:3000 \
+                  -p 2222:22 \
                   gitea/gitea:1.24.6
 
-            - name: Wait for Gitea to become ready
+            - name: Wait for Gitea container to start
               run: |
-                echo "Waiting for Gitea to start..."
-                echo "Checking Docker container status..."
-                docker ps -a
-                
+                echo "Waiting for Gitea container to initialize..."
+                sleep 10
+
+            - name: Install Gitea (complete initial setup)
+              run: |
+                docker exec gitea_test_environment gitea migrate
+
+            - name: Verify Gitea is ready
+              run: |
+                echo "Verifying Gitea API is accessible..."
                 for i in {1..10}; do
-                  echo "Attempt $i/10: Checking Gitea API..."
                   if curl -sf http://localhost:3000/api/v1/version > /dev/null 2>&1; then
                     echo "✓ Gitea is ready!"
                     curl -s http://localhost:3000/api/v1/version
                     exit 0
                   fi
-                  sleep 10
+                  echo "Attempt $i/10: Waiting..."
+                  sleep 2
                 done
                 
-                echo "✗ Gitea failed to start in time."
-                echo "Container logs:"
+                echo "✗ Gitea API not responding."
                 docker logs gitea_test_environment
                 exit 1
 
