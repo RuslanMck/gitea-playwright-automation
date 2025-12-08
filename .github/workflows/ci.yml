@@ -1,13 +1,25 @@
 name: CI Tests
 
-on: 
-  workflow_dispatch:
+on:
+    workflow_dispatch:
 
 jobs:
-  test:
-    name: CI health check test run
-    runs-on: ubuntu-latest
-    
-    steps:
-      - name: Health Check
-        run: echo "[DEBUG LOG] CI Setup Health Check"
+    test:
+        name: CI health check test run
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Health Check
+              run: echo "[DEBUG LOG] CI Setup Health Check"
+
+            - name: Checkout code from repository
+              uses: actions/checkout@v4
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: "20"
+                  cache: "npm"
+
+            - name: Install project dependencies
+              run: npm ci
