@@ -1,0 +1,13 @@
+name: CI Tests
+
+on: 
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: CI health check test run
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Health Check
+        run: echo "[DEBUG LOG] CI Setup Health Check"
