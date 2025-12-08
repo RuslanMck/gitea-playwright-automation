@@ -1,5 +1,5 @@
 #git
-.github/
+copilot-instructions.md
 
 # Dependencies
 node_modules/
@@ -27,6 +27,7 @@ tests/.env
 
 # Secrets
 tests/secrets/
+secrets/
 
 # IDE
 .vscode/
@@ -73,3 +74,8 @@ coverage/
 # Playwright
 /playwright/.cache/
 /playwright/.auth/
+
+# Costom
+*_my.*
+TODO.*
+
