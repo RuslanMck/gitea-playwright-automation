@@ -38,82 +38,99 @@ jobs:
               uses: actions/cache@v4
               id: playwright-cache
               with:
-                path: ~/.cache/ms-playwright
-                key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
-                restore-keys: |
-                  playwright-${{ runner.os }}-
+                  path: ~/.cache/ms-playwright
+                  key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+                  restore-keys: |
+                      playwright-${{ runner.os }}-
 
             - name: Install Playwright browsers
               if: steps.playwright-cache.outputs.cache-hit != 'true'
               run: npx playwright install --with-deps chromium
-            
+
             - name: Install Docker if not present
               run: |
-                if 
-                  ! command -v docker &> /dev/null; 
-                  then
-                    echo "Docker not found, installing..."
-                    sudo apt-get update
-                    sudo apt-get install -y docker.io
-                    sudo systemctl start docker
-                else 
-                  echo "Docker already installed: $(docker --version)"
-                fi
+                  if 
+                    ! command -v docker &> /dev/null; 
+                    then
+                      echo "Docker not found, installing..."
+                      sudo apt-get update
+                      sudo apt-get install -y docker.io
+                      sudo systemctl start docker
+                  else 
+                    echo "Docker already installed: $(docker --version)"
+                  fi
 
             - name: Start Docker container with Gitea image 1.24.6
               run: |
-                docker run -d \
-                  --name gitea_test_environment \
-                  -p 3000:3000 \
-                  -p 2222:22 \
-                  -e GITEA__database__DB_TYPE=sqlite3 \
-                  -e GITEA__security__INSTALL_LOCK=true \
-                  gitea/gitea:1.24.6
+                  docker run -d \
+                    --name gitea_test_environment \
+                    -p 3000:3000 \
+                    -p 2222:22 \
+                    -e GITEA__database__DB_TYPE=sqlite3 \
+                    -e GITEA__security__INSTALL_LOCK=true \
+                    gitea/gitea:1.24.6
 
             - name: Wait for Gitea to auto-install
               run: |
-                echo "Waiting for Gitea to complete auto-installation..."
-                sleep 20
+                  echo "Waiting for Gitea to complete auto-installation..."
+                  sleep 20
 
             - name: Create admin user
               run: |
-                docker exec --user git gitea_test_environment gitea admin user create \
-                  --username ${{ env.ADMIN_USER_NAME }} \
-                  --password ${{ env.ADMIN_PASSWORD }} \
-                  --email ${{ env.ADMIN_EMAIL }} \
-                  --admin
+                  docker exec --user git gitea_test_environment gitea admin user create \
+                    --username ${{ env.ADMIN_USER_NAME }} \
+                    --password ${{ env.ADMIN_PASSWORD }} \
+                    --email ${{ env.ADMIN_EMAIL }} \
+                    --admin
 
             - name: Verify Gitea is ready
               run: |
-                echo "Verifying Gitea API is accessible..."
-                for i in {1..10}; do
-                  if curl -sf http://localhost:3000/api/v1/version > /dev/null 2>&1; then
-                    echo "✓ Gitea is ready!"
-                    curl -s http://localhost:3000/api/v1/version
-                    exit 0
-                  fi
-                  echo "Attempt $i/10: Waiting..."
-                  sleep 2
-                done
-                
-                echo "✗ Gitea API not responding."
-                docker logs gitea_test_environment
-                exit 1
+                  echo "Verifying Gitea API is accessible..."
+                  for i in {1..10}; do
+                    if curl -sf http://localhost:3000/api/v1/version > /dev/null 2>&1; then
+                      echo "✓ Gitea is ready!"
+                      curl -s http://localhost:3000/api/v1/version
+                      exit 0
+                    fi
+                    echo "Attempt $i/10: Waiting..."
+                    sleep 2
+                  done
+
+                  echo "✗ Gitea API not responding."
+                  docker logs gitea_test_environment
+                  exit 1
 
             - name: Generate Admin API Token
               id: token
               run: |
-                TOKEN=$(docker exec --user git gitea_test_environment \
-                  gitea admin user generate-access-token \
-                  --username ${{ env.ADMIN_USER_NAME }} \
-                  --scopes all \
-                  --token-name ci-token-${{ github.run_id }} \
-                  | grep -oP '(?<=Access token was successfully created: ).*')
-                echo "token=$TOKEN" >> $GITHUB_OUTPUT
-                echo "✓ API token generated"
+                  TOKEN=$(docker exec --user git gitea_test_environment \
+                    gitea admin user generate-access-token \
+                    --username ${{ env.ADMIN_USER_NAME }} \
+                    --scopes all \
+                    --token-name ci-token-${{ github.run_id }} \
+                    | grep -oP '(?<=Access token was successfully created: ).*')
+                  echo "token=$TOKEN" >> $GITHUB_OUTPUT
+                  echo "✓ API token generated"
 
             - name: Run Playwright tests
               env:
-                ADMIN_API_TOKEN: ${{ steps.token.outputs.token }}
+                  ADMIN_API_TOKEN: ${{ steps.token.outputs.token }}
               run: npx playwright test
 
+            - name: Upload test results
+              if: always()
+              uses: actions/upload-artifact@v4
+              with:
+                  name: playwright-report
+                  path: playwright-report/
+                  retention-days: 10
+
+            - name: Upload test artifacts
+              if: always()
+              uses: actions/upload-artifact@v4
+              with:
+                name: test-artifacts
+                path: |
+                  test-results/
+                  screenshots/
+                retention-days: 7
