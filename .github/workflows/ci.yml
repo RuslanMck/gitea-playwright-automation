@@ -93,10 +93,12 @@ jobs:
             - name: Generate Admin API Token
               id: token
               run: |
-                TOKEN=$(docker exec gitea \
+                TOKEN=$(docker exec --user git gitea_test_environment \
                   gitea admin user generate-access-token \
                   --username ${{ env.ADMIN_USER_NAME }} \
-                  --scope "read:user,write:user,read:admin,write:admin" \
-                  --name ci-token | sed -n 's/.*Token:\s*\(.*\)$/\1/p')
+                  --scopes all \
+                  --token-name ci-token-${{ github.run_id }} \
+                  | grep -oP '(?<=Access token was successfully created: ).*')
                 echo "token=$TOKEN" >> $GITHUB_OUTPUT
+                echo "✓ API token generated"
 
