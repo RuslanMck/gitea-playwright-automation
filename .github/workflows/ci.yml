@@ -10,7 +10,7 @@ env:
     ADMIN_EMAIL: test8849email@yopmail.com
     GITEA_BASE_URL: http://localhost:3000
     GITEA_API_BASE_URL: http://localhost:3000/api/v1/
-    TEST_PASSWORD: test123
+    TEST_PASSWORD: test_password123
     TEST_REPO_NAME: TestRepo
 
 jobs:
