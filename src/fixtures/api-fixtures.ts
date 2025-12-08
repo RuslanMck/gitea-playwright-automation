@@ -62,10 +62,7 @@ export const apiFixtures = base.extend<ApiFixtures>({
 
     setupSingleTestUser: async ({ adminService }, use) => {
         const testUser: TestUser = generateTestUserData();
-        console.log(`[CI DEBUG] username: ${testUser.username}; password: ${testUser.password}; email: ${testUser.email}`);
         const response = await adminService.createUser(testUser.email, testUser.username, testUser.password);
-        console.log(`[CI DEBUG] generate Test User response: ${response.json()};`);
-
         if (!response.ok()) {
             console.warn(`Failed to create test user ${testUser.username}. Status: ${response.status()}`);
         }
