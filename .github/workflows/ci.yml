@@ -43,7 +43,7 @@ jobs:
             - name: Start Docker container with Gitea image 1.24.6
               run: |
                 docker run -d \
-                  --name gitea_test_environment\ 
+                  --name gitea_test_environment \ 
                   -p 3000:3000 \
                   gitea/gitea:1.24.6
 
