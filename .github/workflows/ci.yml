@@ -56,16 +56,22 @@ jobs:
                   --name gitea_test_environment \
                   -p 3000:3000 \
                   -p 2222:22 \
+                  -e GITEA__database__DB_TYPE=sqlite3 \
+                  -e GITEA__security__INSTALL_LOCK=true \
                   gitea/gitea:1.24.6
 
-            - name: Wait for Gitea container to start
+            - name: Wait for Gitea to auto-install
               run: |
-                echo "Waiting for Gitea container to initialize..."
-                sleep 10
+                echo "Waiting for Gitea to complete auto-installation..."
+                sleep 20
 
-            - name: Install Gitea (complete initial setup)
+            - name: Create admin user
               run: |
-                docker exec --user git gitea_test_environment gitea migrate
+                docker exec --user git gitea_test_environment gitea admin user create \
+                  --username ${{ env.ADMIN_USER_NAME }} \
+                  --password ${{ env.ADMIN_PASSWORD }} \
+                  --email ${{ env.ADMIN_EMAIL }} \
+                  --admin
 
             - name: Verify Gitea is ready
               run: |
