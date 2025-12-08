@@ -39,3 +39,25 @@ jobs:
                 else 
                   echo "Docker already installed: $(docker --version)"
                 fi
+
+            - name: Start Docker container with Gitea image 1.24.6
+              run: |
+                docker run -d \
+                  --name gitea_test_environment\ 
+                  -p 3000:3000 \
+                  gitea/gitea:1.24.6
+
+            - name: Check if Gitea is ready
+              run: |
+                echo "Waiting for Gitea to start..."
+                for i in {1..30}; do
+                  if curl -sf http://localhost:3000/api/v1/version; 
+                  then
+                    echo "Gitea is ready!"
+                    exit 0
+                  fi
+                  sleep 2
+                done
+                echo "Gitea failed to start in time."
+                exit 1
+
