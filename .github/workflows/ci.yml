@@ -90,3 +90,13 @@ jobs:
                 docker logs gitea_test_environment
                 exit 1
 
+            - name: Generate Admin API Token
+              id: token
+              run: |
+                TOKEN=$(docker exec gitea \
+                  gitea admin user generate-access-token \
+                  --username ${{ env.ADMIN_USER_NAME }} \
+                  --scope "read:user,write:user,read:admin,write:admin" \
+                  --name ci-token | sed -n 's/.*Token:\s*\(.*\)$/\1/p')
+                echo "token=$TOKEN" >> $GITHUB_OUTPUT
+
