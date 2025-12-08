@@ -11,7 +11,7 @@ env:
     GITEA_BASE_URL: http://localhost:3000
     GITEA_API_BASE_URL: http://localhost:3000/api/v1/
     TEST_PASSWORD: test123
-    REPO_NAME: TestRepo
+    TEST_REPO_NAME: TestRepo
 
 jobs:
     test:
