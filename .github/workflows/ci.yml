@@ -65,7 +65,7 @@ jobs:
 
             - name: Install Gitea (complete initial setup)
               run: |
-                docker exec gitea_test_environment gitea migrate
+                docker exec --user git gitea_test_environment gitea migrate
 
             - name: Verify Gitea is ready
               run: |
