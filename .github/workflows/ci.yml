@@ -3,6 +3,17 @@ name: CI Tests
 on:
     workflow_dispatch:
 
+# Permissions needed for GitHub Pages deployment
+permissions:
+    contents: read
+    pages: write
+    id-token: write
+
+# Allow only one concurrent deployment
+concurrency:
+    group: "pages"
+    cancel-in-progress: false
+
 # Global environment variables for the entire workflow
 env:
     ADMIN_USER_NAME: QaAdmin
@@ -134,3 +145,32 @@ jobs:
                   test-results/
                   screenshots/
                 retention-days: 7
+
+    deploy:
+        name: Deploy to GitHub Pages
+        needs: test
+        if: always()
+        runs-on: ubuntu-latest
+        
+        environment:
+            name: github-pages
+            url: ${{ steps.deployment.outputs.page_url }}
+        
+        steps:
+            - name: Download test report artifact
+              uses: actions/download-artifact@v4
+              with:
+                  name: playwright-report
+                  path: playwright-report
+
+            - name: Setup GitHub Pages
+              uses: actions/configure-pages@v4
+
+            - name: Upload artifact for GitHub Pages
+              uses: actions/upload-pages-artifact@v3
+              with:
+                  path: playwright-report
+
+            - name: Deploy to GitHub Pages
+              id: deployment
+              uses: actions/deploy-pages@v4
