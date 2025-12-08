@@ -23,3 +23,12 @@ jobs:
 
             - name: Install project dependencies
               run: npm ci
+
+            - name: Install Playwright browsers
+              run: npx playwright install --with-deps chromium
+            
+            - name: Install Docker
+              run: |
+                sudo apt-get update
+                sudo apt-get install -y docker.io
+                sudo systemctl start docker
