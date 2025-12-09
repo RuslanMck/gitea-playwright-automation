@@ -129,8 +129,8 @@ For local runs, open the report using:
 npx playwright show-report
 ```
 
-For CI runs, reports are published to GitHub Pages. 
-Accessible at: **_Will be added after first CI run_**
+CI test run reports are published to GitHub Pages. 
+Accessible at: https://ruslanmck.github.io/gitea-playwright-automation/
 
 ## GitHub Actions Integration
 
