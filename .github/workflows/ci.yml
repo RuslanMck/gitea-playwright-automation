@@ -220,12 +220,9 @@ jobs:
     deploy:
         name: Deploy to GitHub Pages
         needs: test
-        if: always()
+        # Only deploy from main, develop, or ci/** branches (not from PRs)
+        if: always() && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop' || startsWith(github.ref, 'refs/heads/ci/'))
         runs-on: ubuntu-latest
-        
-        environment:
-            name: github-pages
-            url: ${{ steps.deployment.outputs.page_url }}
         
         steps:
             - name: Download test report artifact
