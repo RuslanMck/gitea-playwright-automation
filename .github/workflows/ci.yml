@@ -2,8 +2,29 @@ name: CI Tests
 
 on:
     workflow_dispatch:
+        inputs:
+            test_suite:
+                description: 'Test suite to run'
+                required: false
+                default: 'all'
+                type: choice
+                options:
+                    - all
+                    - smoke
+                    - regression
+                    - api
+                    - ui
+    push:
+        branches:
+            - main
+    pull_request:
+        branches:
+            - main
+    schedule:
+        # Run smoke tests every day at 6 AM UTC
+        - cron: '0 6 * * *'
 
-# Permissions needed for GitHub Pages deployment
+# Permissions needed for test results deployment to GitHub Pages 
 permissions:
     contents: read
     pages: write
@@ -26,13 +47,10 @@ env:
 
 jobs:
     test:
-        name: CI health check test run
+        name: Run ${{ github.event.inputs.test_suite || (github.event_name == 'schedule' && 'smoke' || 'all') }} tests
         runs-on: ubuntu-latest
 
         steps:
-            - name: Health Check
-              run: echo "[DEBUG LOG] CI Setup Health Check"
-
             - name: Checkout code from repository
               uses: actions/checkout@v4
 
@@ -123,10 +141,49 @@ jobs:
                   echo "token=$TOKEN" >> $GITHUB_OUTPUT
                   echo "✓ API token generated"
 
-            - name: Run Playwright tests
+            - name: Determine test command
+              id: test-cmd
+              run: |
+                  # Determine which tests to run based on trigger and input
+                  if [ "${{ github.event_name }}" = "schedule" ]; then
+                    TEST_SUITE="smoke"
+                  elif [ "${{ github.event.inputs.test_suite }}" != "" ]; then
+                    TEST_SUITE="${{ github.event.inputs.test_suite }}"
+                  else
+                    TEST_SUITE="all"
+                  fi
+                  
+                  echo "Test suite: $TEST_SUITE"
+                  
+                  # Build the Playwright command with appropriate grep
+                  case "$TEST_SUITE" in
+                    smoke)
+                      CMD="npx playwright test --grep @smoke"
+                      ;;
+                    regression)
+                      CMD="npx playwright test --grep @regression"
+                      ;;
+                    api)
+                      CMD="npx playwright test --grep @api"
+                      ;;
+                    ui)
+                      CMD="npx playwright test --grep @ui"
+                      ;;
+                    all)
+                      CMD="npx playwright test"
+                      ;;
+                    *)
+                      CMD="npx playwright test"
+                      ;;
+                  esac
+                  
+                  echo "command=$CMD" >> $GITHUB_OUTPUT
+                  echo "suite=$TEST_SUITE" >> $GITHUB_OUTPUT
+
+            - name: Run Playwright tests (${{ steps.test-cmd.outputs.suite }})
               env:
                   ADMIN_API_TOKEN: ${{ steps.token.outputs.token }}
-              run: npx playwright test
+              run: ${{ steps.test-cmd.outputs.command }}
 
             - name: Verify report was generated
               if: always()
