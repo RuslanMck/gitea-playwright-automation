@@ -47,6 +47,7 @@ env:
 
 jobs:
     test:
+       # Dynamic job name based on selected test suite
         name: Run ${{ github.event.inputs.test_suite || (github.event_name == 'schedule' && 'smoke' || 'all') }} tests
         runs-on: ubuntu-latest
 
@@ -155,7 +156,7 @@ jobs:
                   
                   echo "Test suite: $TEST_SUITE"
                   
-                  # Build the Playwright command with appropriate grep
+                  # Playwright test run command with appropriate grep based on selected suite
                   case "$TEST_SUITE" in
                     smoke)
                       CMD="npx playwright test --grep @smoke"
