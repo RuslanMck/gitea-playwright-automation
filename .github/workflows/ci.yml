@@ -1,13 +1,258 @@
 name: CI Tests
 
-on: 
-  workflow_dispatch:
+on:
+    workflow_dispatch:
+        inputs:
+            test_suite:
+                description: 'Test suite to run'
+                required: false
+                default: 'all'
+                type: choice
+                options:
+                    - all
+                    - smoke
+                    - regression
+                    - api
+                    - ui
+    push:
+        branches:
+            - main
+    pull_request:
+        branches:
+            - main
+    schedule:
+        # Run smoke tests every day at 6 AM UTC
+        - cron: '0 6 * * *'
+
+# Permissions needed for test results deployment to GitHub Pages 
+permissions:
+    contents: read
+    pages: write
+    id-token: write
+
+# Allow only one concurrent deployment
+concurrency:
+    group: "pages"
+    cancel-in-progress: false
+
+# Global environment variables for the entire workflow
+env:
+    ADMIN_USER_NAME: QaAdmin
+    ADMIN_PASSWORD: 123qweQWE
+    ADMIN_EMAIL: test8849email@yopmail.com
+    GITEA_BASE_URL: http://localhost:3000
+    GITEA_API_BASE_URL: http://localhost:3000/api/v1/
+    TEST_PASSWORD: test_password123
+    TEST_REPO_NAME: TestRepo
 
 jobs:
-  test:
-    name: CI health check test run
-    runs-on: ubuntu-latest
-    
-    steps:
-      - name: Health Check
-        run: echo "[DEBUG LOG] CI Setup Health Check"
+    test:
+       # Dynamic job name based on selected test suite
+        name: Run ${{ github.event.inputs.test_suite || (github.event_name == 'schedule' && 'smoke' || 'all') }} tests
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout code from repository
+              uses: actions/checkout@v4
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: "20"
+                  cache: "npm"
+
+            - name: Install project dependencies
+              run: npm ci
+
+            - name: Cache Playwright browsers
+              uses: actions/cache@v4
+              id: playwright-cache
+              with:
+                  path: ~/.cache/ms-playwright
+                  key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+                  restore-keys: |
+                      playwright-${{ runner.os }}-
+
+            - name: Install Playwright browsers
+              if: steps.playwright-cache.outputs.cache-hit != 'true'
+              run: npx playwright install --with-deps chromium
+
+            - name: Install Docker if not present
+              run: |
+                  if 
+                    ! command -v docker &> /dev/null; 
+                    then
+                      echo "Docker not found, installing..."
+                      sudo apt-get update
+                      sudo apt-get install -y docker.io
+                      sudo systemctl start docker
+                  else 
+                    echo "Docker already installed: $(docker --version)"
+                  fi
+
+            - name: Start Docker container with Gitea image 1.24.6
+              run: |
+                  docker run -d \
+                    --name gitea_test_environment \
+                    -p 3000:3000 \
+                    -p 2222:22 \
+                    -e GITEA__database__DB_TYPE=sqlite3 \
+                    -e GITEA__security__INSTALL_LOCK=true \
+                    gitea/gitea:1.24.6
+
+            - name: Wait for Gitea to auto-install
+              run: |
+                  echo "Waiting for Gitea to complete auto-installation..."
+                  sleep 20
+
+            - name: Create admin user
+              run: |
+                  docker exec --user git gitea_test_environment gitea admin user create \
+                    --username ${{ env.ADMIN_USER_NAME }} \
+                    --password ${{ env.ADMIN_PASSWORD }} \
+                    --email ${{ env.ADMIN_EMAIL }} \
+                    --admin
+
+            - name: Verify Gitea is ready
+              run: |
+                  echo "Verifying Gitea API is accessible..."
+                  for i in {1..10}; do
+                    if curl -sf http://localhost:3000/api/v1/version > /dev/null 2>&1; then
+                      echo "✓ Gitea is ready!"
+                      curl -s http://localhost:3000/api/v1/version
+                      exit 0
+                    fi
+                    echo "Attempt $i/10: Waiting..."
+                    sleep 2
+                  done
+
+                  echo "✗ Gitea API not responding."
+                  docker logs gitea_test_environment
+                  exit 1
+
+            - name: Generate Admin API Token
+              id: token
+              run: |
+                  TOKEN=$(docker exec --user git gitea_test_environment \
+                    gitea admin user generate-access-token \
+                    --username ${{ env.ADMIN_USER_NAME }} \
+                    --scopes all \
+                    --token-name ci-token-${{ github.run_id }} \
+                    | grep -oP '(?<=Access token was successfully created: ).*')
+                  echo "token=$TOKEN" >> $GITHUB_OUTPUT
+                  echo "✓ API token generated"
+
+            - name: Determine test command
+              id: test-cmd
+              run: |
+                  # Determine which tests to run based on trigger and input
+                  if [ "${{ github.event_name }}" = "schedule" ]; then
+                    TEST_SUITE="smoke"
+                  elif [ "${{ github.event.inputs.test_suite }}" != "" ]; then
+                    TEST_SUITE="${{ github.event.inputs.test_suite }}"
+                  else
+                    TEST_SUITE="all"
+                  fi
+                  
+                  echo "Test suite: $TEST_SUITE"
+                  
+                  # Playwright test run command with appropriate grep based on selected suite
+                  case "$TEST_SUITE" in
+                    smoke)
+                      CMD="npx playwright test --grep @smoke"
+                      ;;
+                    regression)
+                      CMD="npx playwright test --grep @regression"
+                      ;;
+                    api)
+                      CMD="npx playwright test --grep @api"
+                      ;;
+                    ui)
+                      CMD="npx playwright test --grep @ui"
+                      ;;
+                    all)
+                      CMD="npx playwright test"
+                      ;;
+                    *)
+                      CMD="npx playwright test"
+                      ;;
+                  esac
+                  
+                  echo "command=$CMD" >> $GITHUB_OUTPUT
+                  echo "suite=$TEST_SUITE" >> $GITHUB_OUTPUT
+
+            - name: Run Playwright tests (${{ steps.test-cmd.outputs.suite }})
+              env:
+                  ADMIN_API_TOKEN: ${{ steps.token.outputs.token }}
+              run: ${{ steps.test-cmd.outputs.command }}
+
+            - name: Verify report was generated
+              if: always()
+              run: |
+                  echo "Checking if playwright-report exists..."
+                  ls -la playwright-report/ || echo "Report directory not found!"
+                  if [ -f "playwright-report/index.html" ]; then
+                    echo "✓ Report index.html found"
+                    echo "Report size: $(du -sh playwright-report/)"
+                  else
+                    echo "✗ Report index.html missing!"
+                  fi
+
+            - name: Upload test results
+              if: always()
+              uses: actions/upload-artifact@v4
+              with:
+                  name: playwright-report
+                  path: playwright-report/
+                  retention-days: 10
+
+            - name: Upload test artifacts
+              if: always()
+              uses: actions/upload-artifact@v4
+              with:
+                name: test-artifacts
+                path: |
+                  test-results/
+                  screenshots/
+                retention-days: 7
+
+    deploy:
+        name: Deploy to GitHub Pages
+        needs: test
+        if: always()
+        runs-on: ubuntu-latest
+        
+        environment:
+            name: github-pages
+            url: ${{ steps.deployment.outputs.page_url }}
+        
+        steps:
+            - name: Download test report artifact
+              uses: actions/download-artifact@v4
+              with:
+                  name: playwright-report
+                  path: playwright-report
+
+            - name: Verify downloaded artifact
+              run: |
+                  echo "Contents of downloaded artifact:"
+                  ls -la playwright-report/
+                  if [ -f "playwright-report/index.html" ]; then
+                    echo "✓ index.html found in artifact"
+                    echo "File modification time: $(stat -c '%y' playwright-report/index.html)"
+                  else
+                    echo "✗ index.html not found in artifact!"
+                    exit 1
+                  fi
+
+            - name: Setup GitHub Pages
+              uses: actions/configure-pages@v4
+
+            - name: Upload artifact for GitHub Pages
+              uses: actions/upload-pages-artifact@v3
+              with:
+                  path: playwright-report
+
+            - name: Deploy to GitHub Pages
+              id: deployment
+              uses: actions/deploy-pages@v4
